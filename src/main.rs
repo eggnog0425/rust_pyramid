@@ -8,7 +8,7 @@ fn main() {
     build_pyramid(steps);
 }
 
-fn read_steps() -> u16 {
+fn read_steps() -> u8 {
     loop {
         let mut steps = String::new();
         let input = io::stdin().read_line(&mut steps);
@@ -25,25 +25,17 @@ fn valid_input(input: &io::Result<usize>, steps: &String) -> bool {
         return false;
     }
 
-    let steps: Result<u16, std::num::ParseIntError> = steps.trim().parse();
+    let steps: Result<u8, std::num::ParseIntError> = steps.trim().parse();
 
-    match steps {
-        Ok(_v) => {
-            let i = steps.unwrap();
-            if 0 < i && i < 256 {
-                return true;
-            }
-            println!("Please re-enter number(1-255).");
-            return false;
-        }
-        Err(_e) => {
-            println!("Please re-enter number(1-255).");
-            return false;
-        }
+    if steps.is_err() || *steps.as_ref().unwrap() == 0 {
+        println!("Please re-enter number(1-255).");
+        return false;
     }
+    true
 }
 
-fn build_pyramid(steps: u16) {
+fn build_pyramid(steps: u8) {
+    let steps: u16 = From::from(steps);
     let max = steps + 1;
 
     for i in 1..max {
