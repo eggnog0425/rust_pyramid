@@ -39,7 +39,7 @@ fn build_pyramid(steps: u8) {
     let max = steps + 1;
 
     for i in 1..max {
-        let brock = &String::from("■").repeat(i.into());
+        let brock = &String::from("*").repeat(i.into());
         let space = String::from(" ").repeat((max - i - 1).into());
 
         println!("{}", format!("{}{}{}", space, brock, space));
@@ -47,13 +47,45 @@ fn build_pyramid(steps: u8) {
 }
 
 #[cfg(test)]
-fn test_read_steps() {
-    // 空文字
-    // 半角スペース
-    // 2byte文字列
-    // -1
-    // 0
-    // 1
-    // 255
-    // 256
+mod tests {
+    #[test]
+    fn test_valid_input() {
+        use super::*;
+        use std::io::{Error as ioError, ErrorKind as ioErrorKind};
+        // ioerror
+        let result_error = &Err(ioError::new(ioErrorKind::Other, "error"));
+        assert_eq!(false, valid_input(result_error, &String::from("")));
+
+        // 空文字
+        assert_eq!(false, valid_input(&Ok(2), &String::from(""))); // 改行コードが入るので2バイト(多分OS依存するから正しく書くなら場合分けすべきだけどテストコードなので気にしない)
+
+        // 半角スペース
+        let result_1byte = &Ok(3);
+        assert_eq!(false, valid_input(result_1byte, &String::from(" ")));
+
+        // -1
+        assert_eq!(false, valid_input(&Ok(4), &String::from("-1")));
+
+        // 0
+        assert_eq!(false, valid_input(result_1byte, &String::from("0")));
+
+        // 1
+        assert_eq!(true, valid_input(result_1byte, &String::from("1")));
+
+        // 255
+        let result_3byte = &Ok(5);
+        assert_eq!(true, valid_input(result_3byte, &String::from("255")));
+
+        // 256
+        assert_eq!(false, valid_input(result_3byte, &String::from("256")));
+    }
+
+    #[test]
+    // valid_inputで1-255の数値であることを保証しているので、最小値、最小値+1、最大値のみテスト
+    fn test_build_pyramid() {
+        use super::*;
+        build_pyramid(1);
+        build_pyramid(2);
+        build_pyramid(255);
+    }
 }
